@@ -1,7 +1,13 @@
+//Dependencies
 const express = require('express');
 const app = express();
+//Routers
 const pokemon = require('./routes/pokemon');
 const user = require("./routes/user");
+//Middleware
+const auth = require("./middleware/auth");
+const notFound = require("./middleware/notFound");
+const index = require("./middleware/index");
 
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -16,16 +22,13 @@ PUT - Modificar un recurso
 DELETE - Borrar un recurso
 */
 
-app.get("/", (req, res, next) =>{
-    return res.status(200).json({code: 1, message: "Bienvenido al pokedex"});
-});
+app.get("/", index);
 
-app.use("/pokemon", pokemon);
 app.use("/user", user);
+app.use(auth);
+app.use("/pokemon", pokemon);
 
-app.use((req, res, next)=>{
-    return res.status(404).json({code: 404, message: "URL no encontrada"});
-});
+app.use(notFound);
 
 app.listen(process.env.PORT || 3000, () => {
     console.log("Server is running...");
